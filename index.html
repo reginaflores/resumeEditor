@@ -447,6 +447,8 @@
     editing = !editing;
     document.body.classList.toggle('edit-mode', editing);
     toggleBtn.textContent = editing ? 'Lock Editing' : 'Enable Editing';
-
-
-  
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.contentEditable = editing ? 'true' : 'false';
+    });
+  });
+</script>
