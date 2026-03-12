@@ -11,7 +11,7 @@
     --mid: #5a5a54;
     --light: #9a9a90;
     --rule: #d4d4cc;
-    --accent: #c8392b;
+    --accent: #2b5fc8;
     --bg: #faf9f6;
     --paper: #ffffff;
   }
@@ -218,6 +218,9 @@
   body.edit-mode #edit-badge { display: inline-block; }
 
   /* ── Print ── */
+  @page {
+    margin: 0;
+  }
   @media print {
     #toolbar { display: none !important; }
     body { background: white; }
@@ -226,7 +229,7 @@
       width: 100%;
       max-width: none;
       box-shadow: none;
-      padding: 28px 36px;
+      padding: 48px 36px 28px;
     }
     [contenteditable] { background: transparent !important; box-shadow: none !important; }
   }
