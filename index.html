@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regina Flores Mir — Resume Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a18;
+    --mid: #5a5a54;
+    --light: #9a9a90;
+    --rule: #d4d4cc;
+    --accent: #c8392b;
+    --bg: #faf9f6;
+    --paper: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── Toolbar ── */
+  #toolbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: var(--ink);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 28px;
+    gap: 12px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+  #toolbar .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    letter-spacing: 0.01em;
+    opacity: 0.9;
+  }
+  #toolbar .hint {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+  }
+  .btn {
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    padding: 7px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-ghost {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ── Resume wrapper ── */
+  #resume-wrap {
+    padding: 72px 24px 48px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ── Resume page ── */
+  #resume {
+    background: var(--paper);
+    width: 780px;
+    max-width: 100%;
+    padding: 36px 44px 36px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+  }
+
+  /* ── Header ── */
+  .r-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 18px;
+  }
+  .r-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    line-height: 1.05;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .r-header-right {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto auto;
+    gap: 2px 5px;
+    text-align: right;
+    font-size: 12.5px;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--mid);
+    align-content: center;
+  }
+  .r-sep {
+    color: var(--ink);
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+  }
+  .r-header-right a { color: var(--mid); text-decoration: none; }
+
+  /* ── Two-col layout ── */
+  .r-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 28px;
+  }
+
+  /* ── Section ── */
+  .r-section {
+    margin-bottom: 16px;
+  }
+  .r-section-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+  }
+
+  /* ── Entry ── */
+  .r-entry {
+    margin-bottom: 9px;
+  }
+  .r-entry-meta {
+    font-size: 10.5px;
+    color: var(--light);
+    margin-bottom: 0;
+    letter-spacing: 0.02em;
+  }
+  .r-entry-org {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 0;
+  }
+  .r-entry-role {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mid);
+    margin-bottom: 2px;
+    letter-spacing: 0.03em;
+  }
+  .r-entry-desc {
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--mid);
+  }
+
+  /* ── Skills ── */
+  .r-skill {
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--mid);
+  }
+  .r-skill strong {
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Editable ── */
+  [contenteditable] {
+    outline: none;
+    border-radius: 2px;
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  [contenteditable]:focus {
+    background: #fffde7;
+    box-shadow: 0 0 0 2px #f9c74044;
+  }
+  body.edit-mode [contenteditable]:hover:not(:focus) {
+    background: #f5f5f0;
+    cursor: text;
+  }
+
+  /* ── Edit mode indicator ── */
+  #edit-badge {
+    display: none;
+    background: #f9c740;
+    color: var(--ink);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  body.edit-mode #edit-badge { display: inline-block; }
+
+  /* ── Print ── */
+  @media print {
+    #toolbar { display: none !important; }
+    body { background: white; }
+    #resume-wrap { padding: 0; }
+    #resume {
+      width: 100%;
+      max-width: none;
+      box-shadow: none;
+      padding: 28px 36px;
+    }
+    [contenteditable] { background: transparent !important; box-shadow: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <span class="logo">Resume Editor</span>
+  <span class="hint">Click any text to edit &nbsp;·&nbsp; Changes stay until you close</span>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <span id="edit-badge">EDITING</span>
+    <button class="btn btn-ghost" id="toggle-edit">Enable Editing</button>
+    <button class="btn btn-accent" onclick="window.print()">⬇ Save as PDF</button>
+  </div>
+</div>
+
+<div id="resume-wrap">
+<div id="resume">
+
+  <!-- Header -->
+  <div class="r-header">
+    <div style="display:flex;flex-direction:row;align-items:baseline;gap:6px;">
+      <div class="r-name" contenteditable="false">Regina Flores Mir</div>
+    </div>
+    <div class="r-header-right">
+      <span contenteditable="false">www.reginafloresmir.com</span>
+      <span class="r-sep">&#9679;</span>
+      <span contenteditable="false">917.842.0427</span>
+      <span contenteditable="false">regina.flores@gmail.com</span>
+      <span class="r-sep">&#9679;</span>
+      <span contenteditable="false">New York, NY</span>
+    </div>
+  </div>
+
+  <!-- Two-column body -->
+  <div class="r-body">
+
+    <!-- LEFT COLUMN -->
+    <div>
+
+      <!-- Experience -->
+      <div class="r-section">
+        <div class="r-section-title">Experience</div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Jan 2026 – Present · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">AI Consulting</div>
+          <div class="r-entry-role" contenteditable="false">Consultant</div>
+          <div class="r-entry-desc" contenteditable="false">Helping individuals and organizations use AI to streamline workflow processes, reporting, data analytics, and systems.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Sep 2016 – 2017 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">DATA X</div>
+          <div class="r-entry-role" contenteditable="false">Co-Founder</div>
+          <div class="r-entry-desc" contenteditable="false">Studio for research and design projects focusing on data. Focus on 'Data Selfie'. NEW INC member of 2016 cohort. Member of NY Media Lab 2016 Combine program.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">2012 – 2014 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">The Cue Group, LLC</div>
+          <div class="r-entry-role" contenteditable="false">Director of Analytics</div>
+          <div class="r-entry-desc" contenteditable="false">Traditional management consulting projects using data analytics to drive business objectives.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">2008 – Jan 2011 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">JP Morgan</div>
+          <div class="r-entry-role" contenteditable="false">Associate, FX, Rates and Commodities</div>
+          <div class="r-entry-desc" contenteditable="false">Covered Macro Hedge Funds, Pension Funds, and Central Banks to develop portfolio strategies. Created data driven tools.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">2005 – 2007 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Goldman, Sachs & Co.</div>
+          <div class="r-entry-role" contenteditable="false">Analyst, Global Securities Prime Brokerage</div>
+          <div class="r-entry-desc" contenteditable="false">Developed customized performance and ex-post risk analysis tools for online reporting platform (Geneva).</div>
+        </div>
+      </div>
+
+      <!-- Internships -->
+      <div class="r-section">
+        <div class="r-section-title">Internships</div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Oct 2015 – Jun 2016 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">MIT Media Lab</div>
+          <div class="r-entry-role" contenteditable="false">Research Fellow</div>
+          <div class="r-entry-desc" contenteditable="false">Worked with the Playful Systems group to develop a 3D web data viz tool. Helped bring project to 2016 Venice Biennale.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Summer 2015 · Brooklyn, NY</div>
+          <div class="r-entry-org" contenteditable="false">Terreform One</div>
+          <div class="r-entry-role" contenteditable="false">Research Fellow</div>
+          <div class="r-entry-desc" contenteditable="false">Developed web-based tool using three.js. Collaborated on Arduino system to send/receive data for display.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Spring 2015 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">The Metropolitan Museum of Art</div>
+          <div class="r-entry-role" contenteditable="false">Media Lab Intern</div>
+          <div class="r-entry-desc" contenteditable="false">Developed web-based app to engage younger audiences using Hip Hop music with RapGenius API and the Met's API. Showed at Met Media Lab Expo and NYC Media Lab Showcase.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Feb – Aug 2007 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Brevan Howard</div>
+          <div class="r-entry-role" contenteditable="false">Quantitative Strategies Intern</div>
+          <div class="r-entry-desc" contenteditable="false">Worked closely with CIO of Quant Portfolio.</div>
+        </div>
+      </div>
+
+    </div><!-- /left -->
+
+    <!-- RIGHT COLUMN -->
+    <div>
+
+      <!-- Education -->
+      <div class="r-section">
+        <div class="r-section-title">Education</div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">2014 – 2016 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Parsons The New School for Design</div>
+          <div class="r-entry-role" contenteditable="false">MFA, Design and Technology</div>
+          <div class="r-entry-desc" contenteditable="false">Thesis: Mapping and visualizing the microbiome of NYC</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">2007 – 2008 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Columbia University</div>
+          <div class="r-entry-role" contenteditable="false">MA, Statistics — Finance concentration</div>
+          <div class="r-entry-desc" contenteditable="false">Thesis: Time Series Analysis Using GARCH Models to Predict Interest Rates</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">2001 – 2004 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Columbia University, Barnard College</div>
+          <div class="r-entry-role" contenteditable="false">BA, Physics — Astrophysics concentration</div>
+          <div class="r-entry-desc" contenteditable="false">Senior Thesis: Radio Stars at the Nano-Jansky Level</div>
+        </div>
+      </div>
+
+      <!-- Teaching -->
+      <div class="r-section">
+        <div class="r-section-title">Teaching</div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Fall 2022 – Present · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Parsons MFADT</div>
+          <div class="r-entry-role" contenteditable="false">Part-time Lecturer</div>
+          <div class="r-entry-desc" contenteditable="false">Teaching p5.js, front and back end web development to BFA and MFA students.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Fall 2016 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Parsons MFADT</div>
+          <div class="r-entry-role" contenteditable="false">Part-time Faculty</div>
+          <div class="r-entry-desc" contenteditable="false">Taught OpenFrameworks course to MFA students.</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">August 2015 · New York, NY</div>
+          <div class="r-entry-org" contenteditable="false">Parsons MFADT</div>
+          <div class="r-entry-role" contenteditable="false">Instructor</div>
+          <div class="r-entry-desc" contenteditable="false">Taught 1-month Processing bootcamp; served as head of the code team, managing 6 people.</div>
+        </div>
+      </div>
+
+      <!-- Science -->
+      <div class="r-section">
+        <div class="r-section-title">Science</div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Summer 2004 · Arecibo, PR</div>
+          <div class="r-entry-org" contenteditable="false">National Astronomy and Ionosphere Center</div>
+          <div class="r-entry-role" contenteditable="false">Research Analyst</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">Summer 2003 · Green Bank, WV</div>
+          <div class="r-entry-org" contenteditable="false">National Astronomy and Ionosphere Center</div>
+          <div class="r-entry-role" contenteditable="false">Research Analyst</div>
+        </div>
+
+        <div class="r-entry">
+          <div class="r-entry-meta" contenteditable="false">2000 – 2001 · Moffett Field, CA</div>
+          <div class="r-entry-org" contenteditable="false">NASA, Ames Research Center</div>
+          <div class="r-entry-role" contenteditable="false">Research Analyst</div>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="r-section">
+        <div class="r-section-title">Skills</div>
+        <div class="r-skill" contenteditable="false"><strong>Creative Technology:</strong> openFrameworks (C++), Processing, p5.js, GLSL (shaders), Arduino</div>
+        <div class="r-skill" contenteditable="false"><strong>Web Development:</strong> Full stack, HTML, CSS, JavaScript, React, REST APIs, Google Apps Script</div>
+        <div class="r-skill" contenteditable="false"><strong>Data & Analysis:</strong> R, Python &nbsp;&nbsp; <strong>Vibe Coding:</strong> iOS / SwiftUI</div>
+        <div class="r-skill" contenteditable="false"><strong>Foreign Languages:</strong> Spanish (fluent), French (conversational), Urdu (minimal)</div>
+      </div>
+
+    </div><!-- /right -->
+  </div><!-- /body -->
+
+</div><!-- /resume -->
+</div><!-- /wrap -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const toggleBtn = document.getElementById('toggle-edit');
+  let editing = false;
+
+  toggleBtn.addEventListener('click', () => {
+    editing = !editing;
+    document.body.classList.toggle('edit-mode', editing);
+    toggleBtn.textContent = editing ? 'Lock Editing' : 'Enable Editing';
+
+
+  
